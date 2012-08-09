@@ -1,0 +1,17 @@
+***************
+*** 1162,1167 ****
+  #define XINE_EVENT_PROGRESS               8 /* index creation/network connections */
+  #define XINE_EVENT_MRL_REFERENCE          9 /* demuxer->frontend: MRL reference(s) for the real stream */
+  #define XINE_EVENT_UI_NUM_BUTTONS        10 /* number of buttons for interactive menus */
+  
+  /* input events coming from frontend */
+  #define XINE_EVENT_INPUT_MOUSE_BUTTON   101
+--- 1162,1169 ----
+  #define XINE_EVENT_PROGRESS               8 /* index creation/network connections */
+  #define XINE_EVENT_MRL_REFERENCE          9 /* demuxer->frontend: MRL reference(s) for the real stream */
+  #define XINE_EVENT_UI_NUM_BUTTONS        10 /* number of buttons for interactive menus */
++ #define XINE_EVENT_CUE_POINT             11 /* one of the cue points have been reached */
++ 
+  
+  /* input events coming from frontend */
+  #define XINE_EVENT_INPUT_MOUSE_BUTTON   101

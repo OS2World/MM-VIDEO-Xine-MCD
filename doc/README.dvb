@@ -1,0 +1,98 @@
+
+xine Digital TV (DVB)
+=====================
+
+xine can be used to watch digital television.
+
+xine supports Digital TV (Digital Video Broadcasting - DVB) cards
+using the Linux DVB driver from Convergence (http://www.linuxtv.org).
+DVB-S (direct satellite reception), DVB-C (Cable) and DVB-T (Teresstrical)
+cards should be supported (e.g. the Hauppauge WinTV Nova DVB-S card).
+
+driver download and installation
+--------------------------------
+
+Download and install the drivers from http://www.linuxtv.org, the 1.0.0 release
+should work fine. 
+
+You will need kernel sources configured for your configuration for 
+a successfull build, preferably in /usr/src/linux plus a link to them in
+/lib/modules/<kernel-version>/build. Once you have that you should be ready 
+to compile the driver
+
+# cd linuxtv-dvb-1.0.0/driver
+# make
+
+if that doesn't fail, do a
+
+# make insmod
+
+to load the generated modules into your running kernel. If everything went
+fine, you should have something like
+
+DVB: registering new adapter (TT-Budget/WinTV-NOVA-S  PCI).
+PCI: Found IRQ 10 for device 00:0d.0
+PCI: Sharing IRQ 10 with 00:0c.0
+DVB: registering frontend 0:0 (stv0299 based (e.g. Alps BSRU6 or LG TDQB-S00x))...
+
+in your dmesg.
+
+
+install a channel list
+----------------------
+
+xine's dvb input plugin needs a channel/transponder list that fits your 
+dvb equipment. xine now uses the channels.conf format of szap, czap and 
+tzap as appropriate for DVB-S, DVB-C and DVB-T. it will search the channel
+list file in ~/.xine/channels.conf
+
+channel list format for DVB-S:
+
+NBC         :11053   :h  :1        :27500      :550 :551 :1:8008
+station name:freqency:h/v:sat no   :symbol rate:vpid:apid:?:????
+
+you automatically scan for all available channels using the scan utility
+which comes with the dvb package. compile it using something like
+
+# cd linuxtv-dvb-1.0.0/apps/scan
+# make
+
+then start scanning
+
+# scan >channels.conf
+
+this can take a while. in a DiSEqC environment, use the -s N switch to select
+different sattelites to scan and paste the results in one big channels.conf file.
+
+HINT: you might want to manually sort the channels.conf file to have your favourite
+channels at the top and maybe remove scrambled channels which you don't have access to.
+
+
+using xine to watch digital television
+--------------------------------------
+
+make sure you have a recent libxine and frontend installed (latest CVS as of 
+this writing). then simply start something like
+
+$ gxine dvb://
+
+you should be able to zap around using the NumPad-8 / NumPad-2 keys.
+
+An OSD menu is available too. Press NumPad-9 / NumPad-3 to scroll 
+through the channels, then press NumPad-Enter to switch to the channel
+you have selected.
+
+HINT: if audio or video is stuttering, pause (space key) shortly
+to give xine a chance to fill up it's buffers.
+
+
+recording digital television
+----------------------------
+
+there is a very simple vcr-like feature built into the xine engine. just press
+MENU2 (that is F2 in gxine for example) to start/stop recording the currently
+displayed program to your local disc. a small osd in the upper left corner of
+your screen will tell you the file name the recorded stream is written to.
+
+Have fun.
+

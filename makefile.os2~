@@ -1,0 +1,59 @@
+all: /mmos2/dll/libxine.dll /mmos2/dll/xineutil.dll /mmos2/dll/xinemcd.dll /mmos2/xine/plugins/aodart.dll /mmos2/xine/plugins/vodive.dll /mmos2/xine/plugins/dmmpa.dll /mmos2/xine/plugins/infile.dll /mmos2/xine/plugins/decmad.dll /mmos2/xine/plugins/decff.dll /mmos2/xine/plugins/dmmpg.dll  /mmos2/xine/plugins/decff.dll /mmos2/xine/plugins/dmblk.dll /mmos2/xine/plugins/decmp2.dll /mmos2/xine/plugins/instd.dll /mmos2/xine/plugins/dmavi.dll /mmos2/xine/plugins/inhttp.dll /mmos2/xine/plugins/decaad.dll
+
+aaui.exe: src/aaui/aaui.exe
+	copy src\aaui\aaui.exe
+
+/mmos2/dll/libxine.dll: src/xine-engine/libxine.dll
+	copy src\xine-engine\libxine.dll \mmos2\dll
+
+/mmos2/dll/xineutil.dll: src/xine-utils/xineutil.dll
+	copy src\xine-utils\xineutil.dll \mmos2\dll
+
+/mmos2/dll/xinemcd.dll: src/mcd/xinemcd.dll
+	copy src\mcd\xinemcd.dll \mmos2\dll
+
+/mmos2/xine/plugins/aodart.dll: src/audio_out/aodart.dll
+	copy src\audio_out\aodart.dll \mmos2\xine\plugins
+
+/mmos2/xine/plugins/vodive.dll: src/video_out/vodive.dll
+	copy src\video_out\vodive.dll \mmos2\xine\plugins
+
+/mmos2/xine/plugins/voaa.dll: src/video_out/voaa.dll
+	copy src\video_out\voaa.dll \mmos2\xine\plugins
+
+#/mmos2/xine/plugins/dmmpa.dll: src/demuxers/dmmpa.dll
+#	copy src\demuxers\dmmpa.dll \mmos2\xine\plugins
+
+/mmos2/xine/plugins/dmmpg.dll: src/demuxers/dmmpg.dll
+	copy src\demuxers\dmmpg.dll \mmos2\xine\plugins
+
+/mmos2/xine/plugins/dmblk.dll: src/demuxers/dmblk.dll
+	copy src\demuxers\dmblk.dll \mmos2\xine\plugins
+
+/mmos2/xine/plugins/infile.dll: src/input/infile.dll
+	copy src\input\infile.dll \mmos2\xine\plugins
+
+/mmos2/xine/plugins/instd.dll: src/input/instd.dll
+	copy src\input\instd.dll \mmos2\xine\plugins
+
+/mmos2/xine/plugins/decmad.dll: src/libmad/decmad.dll
+	copy src\libmad\decmad.dll \mmos2\xine\plugins
+
+#/mmos2/xine/plugins/decff.dll: src/libffmpeg/decff.dll
+#	copy src\libffmpeg\decff.dll \mmos2\xine\plugins
+
+/mmos2/xine/plugins/decmp2.dll: src/libmpeg2/decmp2.dll
+	copy src\libmpeg2\decmp2.dll \mmos2\xine\plugins
+
+/mmos2/xine/plugins/decff.dll: src/libffmpeg/decff.dll
+	copy src\libffmpeg\decff.dll \mmos2\xine\plugins
+
+/mmos2/xine/plugins/fmavi.dll: src/demuxers/dmavi.dll
+	copy src\demuxers\dmavi.dll \mmos2\xine\plugins
+
+/mmos2/xine/plugins/inhttp.dll: src/input/inhttp.dll
+	copy src\input\inhttp.dll \mmos2\xine\plugins
+
+/mmos2/xine/plugins/decaad.dll: src/libfaad/decaad.dll
+	copy src\libfaad\decaad.dll \mmos2\xine\plugins
+
