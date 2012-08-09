@@ -1,0 +1,423 @@
+/*
+ * Copyright (C) 2000-2002 the xine project
+ * 
+ * This file is part of xine, a free video player.
+ * 
+ * xine is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * xine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
+ *
+ * $Id: xine_internal.h,v 1.144 2003/10/21 16:08:04 mroi Exp $
+ *
+ */
+
+#ifndef HAVE_XINE_INTERNAL_H
+#define HAVE_XINE_INTERNAL_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <inttypes.h>
+
+#ifndef EXTRA_INFO
+#define EXTRA_INFO
+typedef struct extra_info_s extra_info_t;
+#endif
+
+/*
+ * include public part of xine header
+ */
+
+#ifdef XINE_COMPILE
+#  include "xine.h"
+#  include "input/input_plugin.h"
+#  include "demuxers/demux.h"
+#  include "video_out.h"
+#  include "audio_out.h"
+#  include "metronom.h"
+#  include "osd.h"
+#  include "xineintl.h"
+#  include "plugin_catalog.h"
+#  include "video_decoder.h"
+#  include "audio_decoder.h"
+#  include "spu_decoder.h"
+#  include "scratch.h"
+#  include "broadcaster.h"
+#  include "io_helper.h"
+#  include "info_helper.h"
+#else
+#  include <xine.h>
+#  include <xine/input_plugin.h>
+#  include <xine/demux.h>
+#  include <xine/video_out.h>
+#  include <xine/audio_out.h>
+#  include <xine/metronom.h>
+#  include <xine/osd.h>
+#  include <xine/xineintl.h>
+#  include <xine/plugin_catalog.h>
+#  include <xine/video_decoder.h>
+#  include <xine/audio_decoder.h>
+#  include <xine/spu_decoder.h>
+#  include <xine/scratch.h>
+#  include <xine/broadcaster.h>
+#  include <xine/io_helper.h>
+#  include <xine/info_helper.h>
+#endif
+
+
+#define XINE_MAX_EVENT_LISTENERS         50
+#define XINE_MAX_EVENT_TYPES             100
+
+/* used by plugin loader */
+#define XINE_VERSION_CODE                XINE_MAJOR_VERSION*10000+XINE_MINOR_VERSION*100+XINE_SUB_VERSION
+
+
+/*
+ * log constants
+ */
+
+#define XINE_LOG_MSG       0 /* warnings, errors, ... */
+#define XINE_LOG_PLUGIN    1
+#define XINE_LOG_NUM       2 /* # of log buffers defined */
+
+#define XINE_STREAM_INFO_MAX 99
+
+/*
+ * the "big" xine struct, holding everything together
+ */
+
+struct xine_s {
+  
+  config_values_t           *config;
+
+  plugin_catalog_t          *plugin_catalog;
+  
+  int                        demux_strategy;
+
+  /* log output that may be presented to the user */
+  scratch_buffer_t          *log_buffers[XINE_LOG_NUM];
+
+  int                        verbosity;
+
+  xine_list_t               *streams;
+  pthread_mutex_t            streams_lock;
+  
+  metronom_clock_t          *clock;
+  
+  /* FIXME: move this member beneath demux_strategy on the next structure cleanup */
+  char                      *save_path;
+};
+
+/*
+ * extra_info_t is used to pass information from input or demuxer plugins
+ * to output frames (past decoder). new data must be added after the existing
+ * fields for backward compatibility.
+ */
+  
+struct extra_info_s {
+
+  off_t                 input_pos; /* remember where this buf came from in the input source */
+  off_t                 input_length; /* remember the length of the input source */
+  int                   input_time;/* time offset in miliseconds from beginning of stream       */
+  uint32_t              frame_number; /* number of current frame if known */
+  
+  int                   seek_count; /* internal engine use */
+  int64_t               vpts;       /* set on output layers only */ 
+  
+  int                   invalid;    /* do not use this extra info to update anything */
+  int                   total_time; /* duration in miliseconds of the stream */
+};
+
+/*
+ * xine event queue
+ */
+
+struct xine_event_queue_s {
+  xine_list_t               *events;
+  pthread_mutex_t            lock;
+  pthread_cond_t             new_event;
+  xine_stream_t             *stream;
+  pthread_t                 *listener_thread;
+  xine_event_listener_cb_t   callback;
+  void                      *user_data;
+};
+
+/*
+ * Called then the current position jumps. if cur_time is 0 then the function gets the value itself
+ */
+
+void xine_recalculate_next_cue_point(xine_stream_t *stream, int64_t cur_time);
+
+/*
+ * Called then the current cue point is reached.
+ */
+
+void xine_cue_point_event(xine_stream_t *stream, int64_t cur_time);
+
+/*
+ * xine_stream - per-stream parts of the xine engine
+ */
+
+struct xine_stream_s {
+  
+  xine_t                    *xine;
+
+  int                        status;
+
+  input_plugin_t            *input_plugin;
+  input_class_t             *eject_class;
+  int                        content_detection_method;
+  demux_plugin_t            *demux_plugin;
+
+  metronom_t                *metronom;
+
+  xine_video_port_t         *video_out;
+  vo_driver_t               *video_driver;
+  fifo_buffer_t             *video_fifo;
+  pthread_t                  video_thread;
+  video_decoder_t           *video_decoder_plugin;
+  int                        video_decoder_streamtype;
+  extra_info_t              *video_decoder_extra_info;
+  int                        video_channel;
+  
+  xine_audio_port_t         *audio_out;
+  fifo_buffer_t             *audio_fifo;
+  /* FIXME: the next member appears to be unused. Should it be removed? */
+#if 0
+  lrb_t                     *audio_temp;
+#else
+  void                      *audio_temp;
+#endif
+  pthread_t                  audio_thread;
+  audio_decoder_t           *audio_decoder_plugin;
+  int                        audio_decoder_streamtype;
+  extra_info_t              *audio_decoder_extra_info;
+  uint32_t                   audio_track_map[50];
+  int                        audio_track_map_entries;
+  uint32_t                   audio_type;
+  /* *_user: -2 => off
+             -1 => auto (use *_auto value)
+	    >=0 => respect the user's choice
+  */
+  int                        audio_channel_user;
+  int                        audio_channel_auto;
+
+  /* FIXME: remove these two members on the next structure cleanup,
+   * they are unused */
+  void                      *spu_out;
+  pthread_t                  spu_thread;
+  
+  spu_decoder_t             *spu_decoder_plugin;
+  int                        spu_decoder_streamtype;
+  uint32_t                   spu_track_map[50];
+  int                        spu_track_map_entries;
+  int                        spu_channel_user;
+  int                        spu_channel_auto;
+  int                        spu_channel_letterbox;
+  int                        spu_channel_pan_scan;
+  int                        spu_channel;
+
+  /* lock for public xine player functions */
+  pthread_mutex_t            frontend_lock;
+
+  pthread_mutex_t            osd_lock;
+  osd_renderer_t            *osd_renderer;
+
+  /* stream meta information */
+  int                        stream_info[XINE_STREAM_INFO_MAX];
+  char                      *meta_info  [XINE_STREAM_INFO_MAX];
+
+  
+  /* master/slave streams */
+  xine_stream_t             *master;
+  xine_stream_t             *slave;
+  
+  /* seeking slowdown */
+  int                        first_frame_flag;
+  pthread_mutex_t            first_frame_lock;
+  pthread_cond_t             first_frame_reached;
+
+  /* wait for headers sent / stream decoding finished */
+  pthread_mutex_t            counter_lock;
+  pthread_cond_t             counter_changed;
+  int                        header_count_audio; 
+  int                        header_count_video; 
+  int                        finished_count_audio; 
+  int                        finished_count_video; 
+
+  /* event mechanism */
+  xine_list_t               *event_queues;
+  pthread_mutex_t            event_queues_lock;
+  
+  /* demux thread stuff */
+  pthread_t                  demux_thread;
+  int                        demux_thread_running;
+  pthread_mutex_t            demux_lock;
+  int                        demux_action_pending;
+
+  extra_info_t              *current_extra_info;
+  pthread_mutex_t            current_extra_info_lock;
+  int                        video_seek_count;
+
+  xine_post_out_t            video_source;
+  xine_post_out_t            audio_source;
+  
+  int                        slave_is_subtitle; /* ... and will be automaticaly disposed */
+  int                        slave_affection;   /* what operations need to be propagated down to the slave? */
+
+  xine_list_t               *cue_points;
+  pthread_mutex_t            cue_points_lock;
+  uint32_t                   next_cue_time;
+  int                        org_next_cue_time; 
+  xine_cue_point_data_t     *next_cue_data;
+
+  int                        err;
+  
+  /* on-the-fly port rewiring */
+  xine_video_port_t         *next_video_port;
+  xine_audio_port_t         *next_audio_port;
+  pthread_mutex_t            next_video_port_lock;
+  pthread_mutex_t            next_audio_port_lock;
+  pthread_cond_t             next_video_port_wired;
+  pthread_cond_t             next_audio_port_wired;
+
+  int64_t                    metronom_prebuffer;
+  broadcaster_t             *broadcaster;
+};
+
+
+
+/*
+ * private function prototypes:
+ */
+
+void xine_handle_stream_end      (xine_stream_t *stream, int non_user);
+
+/* report message to UI. usually these are async errors */
+
+int xine_message(xine_stream_t *stream, int type, ...);
+
+/* find and instantiate input and demux plugins */
+
+input_plugin_t *find_input_plugin (xine_stream_t *stream, const char *mrl);
+demux_plugin_t *find_demux_plugin (xine_stream_t *stream, input_plugin_t *input);
+demux_plugin_t *find_demux_plugin_by_name (xine_stream_t *stream, const char *name, input_plugin_t *input);
+demux_plugin_t *find_demux_plugin_last_probe(xine_stream_t *stream, const char *last_demux_name, input_plugin_t *input);
+input_plugin_t *rip_plugin_get_instance (xine_stream_t *stream, const char *filename);
+
+/* create decoder fifos and threads */
+
+void video_decoder_init          (xine_stream_t *stream);
+void video_decoder_shutdown      (xine_stream_t *stream);
+
+void audio_decoder_init          (xine_stream_t *stream);
+void audio_decoder_shutdown      (xine_stream_t *stream);
+
+/* extra_info operations */
+void extra_info_reset( extra_info_t *extra_info );
+
+void extra_info_merge( extra_info_t *dst, extra_info_t *src );
+
+void xine_get_current_info (xine_stream_t *stream, extra_info_t *extra_info, int size);
+                        
+                        
+/* demuxer helper functions from demux.c */
+
+/* 
+ *  Flush audio and video buffers. It is called from demuxers on
+ *  seek/stop, and may be useful when user input changes a stream and
+ *  xine-lib has cached buffers that have yet to be played.
+ *
+ * warning: after clearing decoders fifos an absolute discontinuity
+ *          indication must be sent. relative discontinuities are likely
+ *          to cause "jumps" on metronom.
+ */
+void xine_demux_flush_engine         (xine_stream_t *stream);
+
+void xine_demux_control_nop          (xine_stream_t *stream, uint32_t flags);
+void xine_demux_control_newpts       (xine_stream_t *stream, int64_t pts, uint32_t flags);
+void xine_demux_control_headers_done (xine_stream_t *stream);
+void xine_demux_control_start        (xine_stream_t *stream);
+void xine_demux_control_end          (xine_stream_t *stream, uint32_t flags);
+int xine_demux_start_thread          (xine_stream_t *stream);
+int xine_demux_stop_thread           (xine_stream_t *stream);
+int xine_demux_read_header           (input_plugin_t *input, unsigned char *buffer, off_t size);
+int xine_demux_check_extension       (char *mrl, char *extensions);
+
+off_t xine_read_abort (xine_stream_t *stream, int fd, char *buf, off_t todo);
+
+/* 
+ * plugin_loader functions
+ *
+ */
+
+/* on-demand loading of audio/video/spu decoder plugins */
+
+video_decoder_t *get_video_decoder  (xine_stream_t *stream, uint8_t stream_type); 
+void             free_video_decoder (xine_stream_t *stream, video_decoder_t *decoder);
+audio_decoder_t *get_audio_decoder  (xine_stream_t *stream, uint8_t stream_type); 
+void             free_audio_decoder (xine_stream_t *stream, audio_decoder_t *decoder);
+spu_decoder_t   *get_spu_decoder    (xine_stream_t *stream, uint8_t stream_type); 
+void             free_spu_decoder   (xine_stream_t *stream, spu_decoder_t *decoder);
+
+/*
+ * load_video_output_plugin
+ *
+ * load a specific video output plugin
+ */
+
+vo_driver_t *xine_load_video_output_plugin(xine_t *this,
+					   char *id, int visual_type, void *visual);
+
+/*
+ * audio output plugin dynamic loading stuff
+ */
+
+/*
+ * load_audio_output_plugin
+ *
+ * load a specific audio output plugin
+ */
+
+ao_driver_t *xine_load_audio_output_plugin (xine_t *self, char *id);
+
+
+void xine_set_speed (xine_stream_t *stream, int speed) ;
+
+void xine_select_spu_channel (xine_stream_t *stream, int channel) ;
+
+int xine_get_audio_channel (xine_stream_t *stream) ;
+
+int xine_get_spu_channel (xine_stream_t *stream) ;
+
+/*
+ * internal events
+ */
+
+/* sent by dvb frontend to inform ts demuxer of new pids */
+#define XINE_EVENT_PIDS_CHANGE	          0x80000000
+
+/*
+ * pids change event - inform ts demuxer of new pids
+ */
+typedef struct {
+  int                 vpid; /* video program id */
+  int                 apid; /* audio program id */
+} xine_pids_data_t;
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

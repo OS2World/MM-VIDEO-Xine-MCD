@@ -1,0 +1,34 @@
+.SUFFIXES: .c .h .obj .o
+
+CC = gcc
+
+OBJS = $(SRCS:.c=.obj)
+
+SRCS = 	demux_mpgaudio.c demux_mpeg.c demux_mpeg_block.c demux_qt.c demux_ac3.c demux_aiff.c demux_asf.c demux_aud.c demux_avi.c demux_cda.c demux_cdda.c demux_eawve.c demux_elem.c demux_film.c demux_fli.c demux_idcin.c demux_ipmovie.c demux_mng.c demux_nsf.c demux_ogg.c demux_pes.c demux_pva.c demux_rewdv.c demux_real.c demux_realaudio.c demux_roq.c demux_smjpeg.c demux_snd.c demux_str.c demux_ts.c demux_voc.c demux_vox.c demux_vqa.c demux_wav.c demux_wc3moves.c demux_yuv4mpeg2.c demux_yuv_frames.c group_audio.c group_games.c
+
+all: dmmpg.dll dmblk.dll dmqt.dll dmaud.dll dmavi.dll
+
+.c.o:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $<
+
+.c.obj:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -Zomf -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $< -o $@
+
+dmmpa.dll: demux_mpgaudio.obj
+	\emx\bin\gcc -g demux_mpgaudio.obj -g -L../xine-engine -L../xine-utils -lxine -Zmt -lxineutils -llibintl -Zdll -Zcrtdll -Zomf ../plugin.def -o dmmpa.dll
+
+dmmpg.dll: demux_mpeg.obj
+	\emx\bin\gcc -g demux_mpeg.obj -g -L../xine-engine -L../xine-utils -lxine -Zmt -lxineutils -llibintl -Zdll -Zcrtdll -Zomf ../plugin.def -o dmmpg.dll
+
+dmblk.dll: demux_mpeg_block.obj
+	\emx\bin\gcc -g demux_mpeg_block.obj -g -L../xine-engine -L../xine-utils -lxine -Zmt -lxineutils -llibintl -Zdll -Zcrtdll -Zomf ../plugin.def -o dmblk.dll
+
+dmqt.dll: demux_qt.obj
+	\emx\bin\gcc -g demux_qt.obj -g -L../xine-engine -L../xine-utils -lxine -Zmt -lxineutils -llibintl -lz -Zdll -Zcrtdll -Zomf ../plugin.def -o dmqt.dll
+
+dmaud.dll: group_audio.obj demux_ac3.obj demux_aud.obj demux_aiff.obj demux_cdda.obj demux_mpgaudio.obj demux_nsf.obj demux_realaudio.obj demux_snd.obj demux_voc.obj demux_vox.obj demux_wav.obj
+	\emx\bin\gcc -g group_audio.obj demux_ac3.obj demux_aud.obj demux_aiff.obj demux_cdda.obj demux_mpgaudio.obj demux_nsf.obj demux_realaudio.obj demux_snd.obj demux_voc.obj demux_vox.obj demux_wav.obj -g -L../xine-engine -L../xine-utils -lxine -Zmt -lxineutils -llibintl -lz -Zdll -Zcrtdll -Zomf ../plugin.def -o dmaud.dll
+
+dmavi.dll: demux_avi.obj
+	\emx\bin\gcc -g demux_avi.obj -g -L../xine-engine -L../xine-utils -lxine -Zmt -lxineutils -llibintl -Zdll -Zcrtdll -Zomf ../plugin.def -o dmavi.dll
+

@@ -1,0 +1,18 @@
+.SUFFIXES: .c .h .obj .o
+
+CC = gcc
+
+OBJS = $(SRCS:.c=.obj)
+
+SRCS = 	xine_decoder.c 
+
+
+all: decff.dll
+
+.c.obj:
+	gcc -DHAVE_CONFIG_H -I../xine-utils -I../xine-engine -I../.. -I../../include -I.. -Zmt -Zomf -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -D__OS2__ -DCONFIG_OS2 -DSIMPLE_IDCT -DHAVE_AV_CONFIG_H -DRUNTIME_CPUDETECT -DUSE_FASTMEMCPY -DCONFIG_RISKY -DCONFIG_ENCODERS -c $< -o $@
+
+decff.dll: $(OBJS)
+	\emx\bin\gcc -g $(OBJS) libavcodec/*.obj libavcodec/i386/*.obj  libavcodec/libpostproc/*.obj -g -L../xine-engine -L../xine-utils -lxine -Zmt -Zomf -lxineutils -lpthreads -llibintl -Zdll -Zcrtdll ../plugin.def -o decff.dll
+
+

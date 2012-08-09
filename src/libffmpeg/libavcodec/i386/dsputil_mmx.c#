@@ -1,0 +1,16 @@
+***************
+*** 20,25 ****
+   */
+  
+  #include "../dsputil.h"
+  
+  int mm_flags; /* multimedia extension flags */
+  /* FIXME use them in static form */
+--- 20,26 ----
+   */
+  
+  #include "../dsputil.h"
++ #include "mmx.h"
+  
+  int mm_flags; /* multimedia extension flags */
+  /* FIXME use them in static form */

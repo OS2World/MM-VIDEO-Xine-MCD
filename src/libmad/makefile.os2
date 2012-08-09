@@ -1,0 +1,20 @@
+.SUFFIXES: .c .h .obj .o
+
+CC = gcc
+
+OBJS = $(SRCS:.c=.obj)
+
+SRCS = 	bit.c frame.c layer3.c timer.c 	huffman.c stream.c fixed.c layer12.c synth.c xine_decoder.c
+
+all: decmad.dll
+
+.c.o:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $<
+
+.c.obj:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -Zomf -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $< -o $@
+
+decmad.dll: $(OBJS)
+	\emx\bin\gcc -g $(OBJS) -g -L../xine-engine -L../xine-utils -lxine -Zmt -Zomf -lxineutils -llibintl -lpthreads -Zdll -Zcrtdll ../plugin.def -o decmad.dll
+
+

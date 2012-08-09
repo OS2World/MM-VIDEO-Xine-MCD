@@ -1,0 +1,57 @@
+.SUFFIXES: .c .h .obj .o
+
+CC = gcc
+
+OBJS = $(SRCS:.c=.obj)
+
+SRCS = 	bits.c \
+	cfft.c \
+	common.c \
+	data.c \
+	decoder.c \
+	dither.c \
+	drc.c \
+	error.c \
+	filtbank.c \
+	codebook/hcb_1.c \
+	codebook/hcb_2.c \
+	codebook/hcb_3.c \
+	codebook/hcb_4.c \
+	codebook/hcb_5.c \
+	codebook/hcb_6.c \
+	codebook/hcb_7.c \
+	codebook/hcb_8.c \
+	codebook/hcb_9.c \
+	codebook/hcb_10.c \
+	codebook/hcb_11.c \
+	codebook/hcb_sf.c \
+	hcr.c \
+	ic_predict.c \
+	is.c \
+	lt_predict.c \
+	mdct.c \
+	mp4.c \
+	ms.c \
+	output.c \
+	pns.c \
+	pulse.c \
+	rvlc.c \
+	specrec.c \
+	ssr.c \
+	ssr_fb.c \
+	ssr_ipqf.c \
+	syntax.c \
+	tns.c \
+	xine_decoder.c
+
+all: decaad.dll
+
+.c.o:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $<
+
+.c.obj:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -Zomf -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $< -o $@
+
+decaad.dll: $(OBJS)
+	\emx\bin\gcc -g $(OBJS) -g -L../xine-engine -L../xine-utils -lxine -Zmt -Zomf -lxineutils -Zdll -Zcrtdll ../plugin.def -o decaad.dll
+

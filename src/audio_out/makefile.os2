@@ -1,0 +1,20 @@
+.SUFFIXES: .c .h .obj .o
+
+CC = gcc
+
+OBJS = $(SRCS:.c=.obj)
+
+SRCS = 	audio_dart_out.c
+
+all: aodart.dll
+
+.c.o:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $<
+
+.c.obj:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -Zomf -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $< -o $@
+
+aodart.dll: ../plugin.def audio_dart_out.obj
+	\emx\bin\gcc -g audio_dart_out.obj -g -L../xine-engine -L../xine-utils -lxine -Zmt -lxineutils -llibintl -Zdll -Zcrtdll -Zomf -los2me ../plugin.def -o aodart.dll
+
+

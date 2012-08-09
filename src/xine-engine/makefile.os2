@@ -1,0 +1,30 @@
+.SUFFIXES: .c .h .obj .o
+
+CC = gcc
+
+OBJS = $(SRCS:.c=.obj)
+
+SRCS = 	metronom.c configfile.c buffer.c \
+	load_plugins.c video_decoder.c buffer_types.c \
+	audio_decoder.c video_out.c audio_out.c resample.c events.c lrb.c broadcaster.c io_helper.c\
+	video_overlay.c osd.c scratch.c demux.c vo_scale.c xine_interface.c post.c xine.c info_helper.c \
+	input_rip.c
+
+
+.c.o:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $<
+
+all: libxine.dll xine.a xine.lib
+
+.c.obj:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -Zomf -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $< -o $@
+
+xine.a: xine.def
+	emximp -o xine.a xine.def
+
+xine.lib: xine.def
+	emximp -o xine.lib xine.def
+
+libxine.dll: xine.def $(OBJS)
+	gcc -g *.obj -Zmt -Zdll -Zcrtdll -Zomf -L../xine-utils -lpthreads -llibintl -lz -lxineutils -lsocket xine.def -o libxine.dll
+

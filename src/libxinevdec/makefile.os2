@@ -1,0 +1,42 @@
+.SUFFIXES: .c .h .obj .o
+
+CC = gcc
+
+all: deccine.dll deccyuv.dll decmrle.dll decmvc.dll decqrle.dll decrpza.dll decsmc.dll decrgb.dll decsvq.dll decyuv.dll
+
+.c.o:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $<
+
+.c.obj:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -Zomf -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $< -o $@
+
+deccine.dll: cinepak.obj
+	\emx\bin\gcc -g $< -g -L../xine-engine -L../xine-utils -lxine -Zmt -Zomf -lxineutils -Zdll -Zcrtdll ../plugin.def -o $@
+
+deccyuv.dll: cyuv.obj
+	\emx\bin\gcc -g $< -g -L../xine-engine -L../xine-utils -lxine -Zmt -Zomf -lxineutils -Zdll -Zcrtdll ../plugin.def -o $@
+
+decmrle.dll: msrle.obj
+	\emx\bin\gcc -g $< -g -L../xine-engine -L../xine-utils -lxine -Zmt -Zomf -lxineutils -llibintl -Zdll -Zcrtdll ../plugin.def -o $@
+
+decmvc.dll: msvc.obj
+	\emx\bin\gcc -g $< -g -L../xine-engine -L../xine-utils -lxine -Zmt -Zomf -lxineutils -Zdll -Zcrtdll ../plugin.def -o $@
+
+decqrle.dll: qtrle.obj
+	\emx\bin\gcc -g $< -g -L../xine-engine -L../xine-utils -lxine -Zmt -Zomf -lxineutils -Zdll -Zcrtdll ../plugin.def -o $@
+
+decrpza.dll: qtrpza.obj
+	\emx\bin\gcc -g $< -g -L../xine-engine -L../xine-utils -lxine -Zmt -Zomf -lxineutils -llibintl -Zdll -Zcrtdll ../plugin.def -o $@
+
+decsmc.dll: qtsmc.obj
+	\emx\bin\gcc -g $< -g -L../xine-engine -L../xine-utils -lxine -Zmt -Zomf -lxineutils -llibintl -Zdll -Zcrtdll ../plugin.def -o $@
+
+decrgb.dll: rgb.obj
+	\emx\bin\gcc -g $< -g -L../xine-engine -L../xine-utils -lxine -Zmt -Zomf -lxineutils -Zdll -Zcrtdll ../plugin.def -o $@
+
+decsvq.dll: svq1.obj
+	\emx\bin\gcc -g $< -g -L../xine-engine -L../xine-utils -lxine -Zmt -Zomf -lxineutils -Zdll -Zcrtdll ../plugin.def -o $@
+
+decyuv.dll: yuv.obj
+	\emx\bin\gcc -g $< -g -L../xine-engine -L../xine-utils -lxine -Zmt -Zomf -lxineutils -Zdll -Zcrtdll ../plugin.def -o $@
+

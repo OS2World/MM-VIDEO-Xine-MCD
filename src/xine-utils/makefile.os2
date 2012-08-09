@@ -1,0 +1,35 @@
+.SUFFIXES: .c .h .obj .o
+
+CC = gcc
+
+OBJS = $(SRCS:.c=.obj)
+
+SRCS = 	cpu_accel.c \
+	color.c \
+	list.c \
+	memcpy.c \
+	monitor.c \
+	utils.c \
+	xine_check.c \
+	xine_mutex.c \
+	xmllexer.c \
+	xmlparser.c xine_buffer.c
+
+all:  xineutils.lib xineutils.a xineutil.dll
+
+.c.o:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $<
+
+.c.obj:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -Zomf -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $< -o $@
+
+xineutils.a: xineutil.def
+	emximp -o xineutils.a xineutil.def
+
+xineutils.lib: xineutil.def
+	emximp -o xineutils.lib xineutil.def
+
+xineutil.dll: xineutil.def $(OBJS)
+	\emx\bin\gcc -g *.obj -Zmt -Zdll -Zcrtdll -Zomf -lpthreads -llibintl xineutil.def -o xineutil.dll
+
+

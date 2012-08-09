@@ -1,0 +1,19 @@
+.SUFFIXES: .c .h .obj .o
+
+CC = gcc
+
+OBJS = $(SRCS:.c=.obj)
+
+SRCS = 	video_out_aa.c video_out_dive.c
+
+all: vodive.dll
+
+.c.obj:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -Zomf -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $< -o $@
+
+voaa.dll: video_out_aa.o
+	\emx\bin\gcc -g video_out_aa.o -g -L../xine-engine -L../xine-utils -lxine -Zmt -lxineutils -laa -llibintl -Zdll -Zcrtdll ../plugin.def -o voaa.dll
+
+vodive.dll: video_out_dive.obj
+	\emx\bin\gcc -g video_out_dive.obj -g -L../xine-engine -L../xine-utils -lxine -Zmt -Zomf -lxineutils -llibintl -los2me -ldive -Zdll -Zcrtdll ../plugin.def -o vodive.dll
+

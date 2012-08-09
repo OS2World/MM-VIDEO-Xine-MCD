@@ -1,0 +1,59 @@
+***************
+*** 394,399 ****
+    stream->finished_count_audio   = 0; 
+    stream->finished_count_video   = 0; 
+    stream->err                    = 0;
+    
+    /*
+     * initial master/slave
+--- 394,400 ----
+    stream->finished_count_audio   = 0; 
+    stream->finished_count_video   = 0; 
+    stream->err                    = 0;
++   stream->next_cue_time          = 0x7FFFFFFF;
+    
+    /*
+     * initial master/slave
+***************
+*** 415,420 ****
+    pthread_mutex_init (&stream->first_frame_lock, NULL);
+    pthread_cond_init  (&stream->first_frame_reached, NULL);
+    pthread_mutex_init (&stream->current_extra_info_lock, NULL);
+  
+    /*
+     * event queues
+--- 416,422 ----
+    pthread_mutex_init (&stream->first_frame_lock, NULL);
+    pthread_cond_init  (&stream->first_frame_reached, NULL);
+    pthread_mutex_init (&stream->current_extra_info_lock, NULL);
++   pthread_mutex_init (&stream->cue_points_lock, NULL);
+  
+    /*
+     * event queues
+***************
+*** 1085,1091 ****
+    pthread_mutex_destroy (&stream->osd_lock);
+    pthread_mutex_destroy (&stream->event_queues_lock);
+    pthread_mutex_destroy (&stream->current_extra_info_lock);
+    pthread_cond_destroy (&stream->counter_changed);
+  
+    stream->metronom->exit (stream->metronom);
+  
+--- 1094,1110 ----
+    pthread_mutex_destroy (&stream->osd_lock);
+    pthread_mutex_destroy (&stream->event_queues_lock);
+    pthread_mutex_destroy (&stream->current_extra_info_lock);
++   pthread_mutex_destroy (&stream->cue_points_lock);
+    pthread_cond_destroy (&stream->counter_changed);
++ 
++ 
++   cue_point = (xine_cue_point_data_t *) xine_list_first_content (stream->cue_points);
++   while (cue_point) {
++      free(cue_point);
++      xine_list_delete_current (stream->cue_points);
++      cue_point = (xine_cue_point_data_t *) xine_list_first_content (stream->cue_points);
++   }
++   xine_list_free(stream->cue_points);
+  
+    stream->metronom->exit (stream->metronom);
+  

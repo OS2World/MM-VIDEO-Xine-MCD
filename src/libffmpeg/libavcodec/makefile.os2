@@ -1,0 +1,51 @@
+.SUFFIXES: .c .h .obj .o
+
+CC = gcc
+
+OBJS = $(SRCS:.c=.obj)
+
+SRCS = 		4xm.c \
+	common.c \
+	cyuv.c \
+	dsputil.c \
+	dv.c \
+	error_resilience.c \
+	eval.c \
+	fft.c \
+	golomb.c \
+	h263.c \
+	h263dec.c \
+	h264.c \
+	huffyuv.c \
+	imgconvert.c \
+	indeo3.c \
+	jfdctfst.c \
+	jfdctint.c \
+	jrevdct.c \
+	mdct.c \
+	mace.c \
+	mem.c \
+	mjpeg.c \
+	mpeg12.c \
+	mpegaudiodec.c \
+	mpegvideo.c \
+	msmpeg4.c \
+	opts.c \
+	ra144.c \
+	ra288.c \
+	ratecontrol.c \
+	rv10.c \
+	simple_idct.c \
+	svq1.c \
+	utils.c \
+	vp3.c \
+	wmadec.c 
+
+
+all: $(OBJS)
+
+.c.obj:
+	gcc -DHAVE_CONFIG_H -I../../xine-utils -I../../xine-engine -I../../.. -I../../../include -I.. -Zmt -Zomf -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -D__OS2__ -DCONFIG_OS2 -DSIMPLE_IDCT -DHAVE_AV_CONFIG_H -DRUNTIME_CPUDETECT -DUSE_FASTMEMCPY -DCONFIG_RISKY -DCONFIG_ENCODERS -c $< -o $@
+
+
+

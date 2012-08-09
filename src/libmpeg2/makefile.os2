@@ -1,0 +1,31 @@
+.SUFFIXES: .c .h .obj .o
+
+CC = gcc
+
+OBJS = $(SRCS:.c=.obj)
+
+SRCS = 		cpu_state.c \
+	decode.c \
+	header.c \
+	idct.c \
+	idct_altivec.c \
+	idct_mlib.c \
+	idct_mmx.c \
+	motion_comp.c \
+	motion_comp_altivec.c \
+	motion_comp_mmx.c \
+	motion_comp_mlib.c \
+	slice.c \
+	stats.c \
+	xine_decoder.c slice_xvmc.c
+
+
+all: decmp2.dll
+
+.c.obj:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -Zomf -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $< -o $@
+
+decmp2.dll: $(OBJS)
+	\emx\bin\gcc -g $(OBJS) -g -L../xine-engine -L../xine-utils -lxine -Zmt -Zomf -lxineutils -llibintl -lpthreads -Zdll -Zcrtdll ../plugin.def -o decmp2.dll
+
+

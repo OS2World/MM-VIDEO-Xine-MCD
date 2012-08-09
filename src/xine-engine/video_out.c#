@@ -1,0 +1,16 @@
+***************
+*** 832,837 ****
+        printf ("video_out: displaying frame (id=%d)\n", img->id);
+  #endif
+        overlay_and_display_frame (this, img, vpts);
+        }
+      else
+      {
+--- 832,838 ----
+        printf ("video_out: displaying frame (id=%d)\n", img->id);
+  #endif
+        overlay_and_display_frame (this, img, vpts);
++       if (vpts>=img->stream->next_cue_time) xine_cue_point_event(img->stream,vpts);
+        }
+      else
+      {

@@ -1,0 +1,25 @@
+.SUFFIXES: .c .h .obj .o
+
+CC = gcc
+
+OBJS = $(SRCS:.c=.obj)
+
+SRCS = 		bitstream.c \
+	bit_allocate.c \
+	crc.c \
+	downmix.c \
+	imdct.c \
+	parse.c \
+	xine_decoder.c
+
+all: deca52.dll
+
+.c.o:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $<
+
+.c.obj:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -Zomf -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $< -o $@
+
+deca52.dll: $(OBJS)
+	\emx\bin\gcc -g $(OBJS) -g -L../xine-engine -L../xine-utils -lxine -Zmt -Zomf -lxineutils -llibintl -Zdll -Zcrtdll ../plugin.def -o deca52.dll
+

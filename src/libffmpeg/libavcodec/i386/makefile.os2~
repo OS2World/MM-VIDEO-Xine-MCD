@@ -1,0 +1,24 @@
+.SUFFIXES: .c .h .obj .o
+
+CC = gcc
+
+OBJS = $(SRCS:.c=.obj)
+
+SRCS = 	cputest.c \
+dsputil_mmx.c \
+fdct_mmx.c \
+fft_sse.c \
+idct_mmx.c \
+libavcodec_mmx_dummy.c \
+motion_est_mmx.c \
+mpegvideo_mmx.c \
+mpegvideo_mmx_template.c \
+simple_idct_mmx.c
+
+
+all: $(OBJS)
+
+.c.obj:
+	gcc -DHAVE_CONFIG_H -I../../../xine-utils -I../../../xine-engine -I../../../.. -I../.. -I.. -Zmt -Zomf -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $< -o $@
+
+

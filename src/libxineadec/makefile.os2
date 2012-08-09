@@ -1,0 +1,17 @@
+.SUFFIXES: .c .h .obj .o
+
+CC = gcc
+
+all: dec28k8.dll declog.dll 
+
+.c.o:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $<
+
+.c.obj:
+	gcc -DHAVE_CONFIG_H -I../.. -I.. -I../../src/xine-engine -I../../src/xine-utils -I../../intl -I../../include -Zmt -Zomf -O3 -Wall -D_REENTRANT -D_FILE_OFFSET_BITS=64 -DXINE_COMPILE -g -DDEBUG  -DDLL_EXPORT -DPIC -c $< -o $@
+
+dec28k8.dll: 28k8.obj
+	\emx\bin\gcc -g 28k8.obj -g -L../xine-engine -L../xine-utils -lxine -Zmt -Zomf -lxineutils -Zdll -Zcrtdll ../plugin.def -o dec28k8.dll
+
+declog.dll: logpcm.obj
+	\emx\bin\gcc -g logpcm.obj -g -L../xine-engine -L../xine-utils -lxine -Zmt -Zomf -lxineutils -Zdll -Zcrtdll ../plugin.def -o declog.dll

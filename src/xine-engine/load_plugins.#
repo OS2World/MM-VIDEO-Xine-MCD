@@ -1,0 +1,39 @@
+***************
+*** 271,286 ****
+        } else {
+  
+  	switch (statbuffer.st_mode & S_IFMT){
+- 
+  	case S_IFREG:
+  	  /* regular file, ie. plugin library, found => load it */
+- 
+  	  /* this will fail whereever shared libs are called *.dll or such
+  	   * better solutions:
+             * a) don't install .la files on user's system
+             * b) also cache negative hits, ie. files that failed to dlopen()
+  	   */
+  	  if(!strstr(str, ".so") )
+  	    break;
+  	  
+  	  plugin_name = str;
+--- 271,290 ----
+        } else {
+  
+  	switch (statbuffer.st_mode & S_IFMT){
++   
+  	case S_IFREG:
+  	  /* regular file, ie. plugin library, found => load it */
++   
+  	  /* this will fail whereever shared libs are called *.dll or such
+  	   * better solutions:
+             * a) don't install .la files on user's system
+             * b) also cache negative hits, ie. files that failed to dlopen()
+  	   */
++ #ifdef __EMX__
++ 	  if(!strstr(str, ".dll") )
++ #else    
+  	  if(!strstr(str, ".so") )
++ #endif
+  	    break;
+  	  
+  	  plugin_name = str;
